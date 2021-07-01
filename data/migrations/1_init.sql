@@ -36,4 +36,4 @@ PARTITION prices_nov2021 VALUES LESS THAN(TO_DATE('01/12/2021','DD/MM/YYYY')),
 PARTITION prices_dec2021 VALUES LESS THAN(TO_DATE('01/01/2022','DD/MM/YYYY'))
 );
 
-CREATE INDEX market_ts_idx ON market(ts);
+CREATE INDEX market_ts_idx ON market(pair_id, ts);
