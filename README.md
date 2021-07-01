@@ -18,7 +18,7 @@ Install dependencies with go mod
 go mod download
 ```
 
-Create and Provide environment data in `.env`
+Create and Provide environment data in `.env`, checkout `.env.example`
 
 Run app
 
