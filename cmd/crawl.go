@@ -2,15 +2,19 @@ package main
 
 import (
 	"context"
+	"fmt"
+	"log"
 	"time"
 
 	"github.com/adshao/go-binance/v2"
 	"github.com/phuwn/coinchameleon/data/db"
-	"github.com/phuwn/coinchameleon/model"
 	"github.com/phuwn/coinchameleon/util"
 )
 
-var pairList = [...]string{"BTCUSDT", "ETHUSDT", "BNBUSDT", "DOGEUSDT", "FTMUSDT", "MATICUSDT"}
+var (
+	pairList  = [...]string{"BTCUSDT", "ETHUSDT", "BNBUSDT", "DOGEUSDT", "FTMUSDT", "MATICUSDT"}
+	insertSQL = `INSERT INTO market (PAIR_ID,TS,OPEN_PRICE,HIGH_PRICE,LOW_PRICE,CLOSE_PRICE,VOLUME) VALUES ('%v','TO_DATE('%v','DD/MM/YYYY')',%v,%v,%v,%v,%v)`
+)
 
 func crawl() (err error) {
 
@@ -33,7 +37,7 @@ func crawl() (err error) {
 
 	for _, pair := range pairList {
 		klineData, err := client.NewKlinesService().
-			Symbol("BTCUSDT").
+			Symbol(pair).
 			StartTime(startTime.UTC().Unix() * 1000).
 			Interval("1d").
 			Limit(1000).
@@ -42,22 +46,27 @@ func crawl() (err error) {
 			return err
 		}
 
+		log.Printf("[CRAWL] data of %v succeed\n", pair)
+
 		for _, v := range klineData {
-			ts := time.Unix(v.OpenTime/1000, 0)
-			newRecord := &model.MarketData{
+
+			q := fmt.Sprintf(
+				insertSQL,
 				pair,
-				&ts,
+				time.Unix(v.OpenTime/1000, 0).Format("02/01/2006"),
 				v.Open,
+				v.Close,
 				v.High,
 				v.Low,
-				v.Close,
 				v.Volume,
-			}
+			)
 
-			if err := tx.Create(&newRecord).Error; err != nil {
+			if err := tx.Raw(q).Error; err != nil {
 				return err
 			}
 		}
+
+		log.Printf("[STORE] data of %v succeed\n---\n", pair)
 	}
 	return nil
 }

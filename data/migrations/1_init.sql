@@ -1,10 +1,11 @@
 CREATE TABLE market (
 	pair_id VARCHAR2(50) NOT NULL,
 	ts DATE,
-	"open" REAL,
-	high REAL,
-	low REAL,
-	"close" REAL,
+	open_price REAL,
+	high_price REAL,
+	low_price REAL,
+	close_price REAL,
+	volume REAL,
 	PRIMARY KEY(pair_id, ts)
 )
 PARTITION BY RANGE(ts) 
