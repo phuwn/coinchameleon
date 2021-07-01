@@ -13,7 +13,7 @@ import (
 
 var (
 	pairList  = [...]string{"BTCUSDT", "ETHUSDT", "BNBUSDT", "DOGEUSDT", "FTMUSDT", "MATICUSDT"}
-	insertSQL = `INSERT INTO market (PAIR_ID,TS,OPEN_PRICE,HIGH_PRICE,LOW_PRICE,CLOSE_PRICE,VOLUME) VALUES ('%v','TO_DATE('%v','DD/MM/YYYY')',%v,%v,%v,%v,%v)`
+	insertSQL = `INSERT INTO MARKET (PAIR_ID,TS,OPEN_PRICE,HIGH_PRICE,LOW_PRICE,CLOSE_PRICE,VOLUME) VALUES ('%v',TO_DATE('%v','DD/MM/YYYY'),%v,%v,%v,%v,%v)`
 )
 
 func crawl() (err error) {
@@ -27,7 +27,7 @@ func crawl() (err error) {
 		tx.Commit()
 	}()
 
-	startTime, err := time.Parse("02/01/2006 15:04:05", "01/01/2021 00:00:00")
+	startTime, err := time.Parse("02/01/2006 15:04:05", "01/01/2020 00:00:00")
 	if err != nil {
 		return err
 	}
@@ -46,7 +46,7 @@ func crawl() (err error) {
 			return err
 		}
 
-		log.Printf("[CRAWL] data of %v succeed\n", pair)
+		log.Printf("[CRAWL] %v data of %v succeed\n", len(klineData), pair)
 
 		for _, v := range klineData {
 
@@ -61,7 +61,7 @@ func crawl() (err error) {
 				v.Volume,
 			)
 
-			if err := tx.Raw(q).Error; err != nil {
+			if err := tx.Exec(q).Error; err != nil {
 				return err
 			}
 		}
